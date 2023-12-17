@@ -1,6 +1,7 @@
 using Academy.Core.Entities;
 using Academy.Core.Interfaces;
 using Academy.Repositories.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Academy.Repositories.Implementations
 {
@@ -11,29 +12,50 @@ namespace Academy.Repositories.Implementations
         {
             _academyContext = academyContext;
         }
-        public Task<Institution> Add(Institution institution)
+        public async Task<Institution> Add(Institution institution)
         {
-            throw new NotImplementedException();
+            _academyContext.Add(institution);
+            _academyContext.SaveChanges();
+            return await Task.FromResult(institution);
         }
 
-        public Task<bool> Delete(Guid institutionId)
+        public async Task<bool> Delete(Guid institutionId)
         {
-            throw new NotImplementedException();
+            var institution = await _academyContext
+                            .Institutions
+                            .Where(m => m.Id == institutionId)
+                            .FirstOrDefaultAsync();
+                            
+            _academyContext
+            .Institutions
+            .Remove(institution ?? new Institution());
+
+           return _academyContext.SaveChanges() > 0 ? true : false;
         }
 
-        public Task<List<Institution>> GetAll()
+        public async Task<List<Institution>> GetAll()
         {
-            throw new NotImplementedException();
+            return await Task.FromResult( _academyContext
+            .Institutions
+            .ToList());
         }
 
-        public Task<Institution> GetById(Guid institutionId)
+        public async Task<Institution> GetById(Guid institutionId)
         {
-            throw new NotImplementedException();
+            var institution = await _academyContext
+                            .Institutions
+                            .Where(m => m.Id == institutionId)
+                            .FirstOrDefaultAsync();
+
+            return institution ?? new Institution();
         }
 
-        public Task<Institution> Update(Institution institution)
+        public async Task<Institution> Update(Institution institution)
         {
-            throw new NotImplementedException();
+            var update = _academyContext.Institutions.Update(institution);
+            _academyContext.SaveChanges();
+            
+            return await Task.FromResult(institution);
         }
     }
 }
